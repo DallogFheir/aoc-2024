@@ -1,0 +1,15 @@
+namespace Aoc2024.DayX
+{
+    public class Solution
+    {
+        public static void Part1()
+        {
+            Console.WriteLine($"Part 1: {1}");
+        }
+
+        public static void Part2()
+        {
+            Console.WriteLine($"Part 2: {2}");
+        }
+    }
+}

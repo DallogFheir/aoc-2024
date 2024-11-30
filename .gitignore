@@ -1,0 +1,73 @@
+# Ignore Visual Studio temporary files, build results, and
+# build logs.
+## User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## User-specific files (MonoDevelop/Xamarin Studio)
+*.userprefs
+
+## Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# VS Code directories
+.vscode/
+
+# Visual Studio cache
+.vs/
+*.pdb
+*.mdb
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+packages/
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.runtimeconfig.dev.json
+
+# ASP.NET Scaffolding
+.scaffolding
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Enable the following if you have VS extensions that are adding files to .NET-specific folders
+# !.NET/
+
+# End of default.gitignore
+
