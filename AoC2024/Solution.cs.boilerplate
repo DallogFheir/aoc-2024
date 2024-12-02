@@ -1,15 +1,41 @@
+using Aoc2024.Utils;
+
 namespace Aoc2024.DayX
 {
     public class Solution
     {
         public static void Part1()
         {
-            Console.WriteLine($"Part 1: {1}");
+            var testResult = SolvePart1("test.txt");
+            Assert.ExpectedEqualsActual(expectedValue, testResult);
+
+            var result = SolvePart1("input.txt");
+            Console.WriteLine($"Part 1: {result}");
+        }
+
+        private static int SolvePart1(string inputPath)
+        {
+            return Solve(inputPath, solver);
+        }
+
+        private static int Solve(string inputPath, Func<int[][], int> solver)
+        {
+            var lines = FileOpener.ReadIntoSplitLines($"dayX/{inputPath}", parser);
+            return solver(lines);
         }
 
         public static void Part2()
         {
-            Console.WriteLine($"Part 2: {2}");
+            var testResult = SolvePart2("test.txt");
+            Assert.ExpectedEqualsActual(expectedValue, testResult);
+
+            var result = SolvePart2("input.txt");
+            Console.WriteLine($"Part 2: {result}");
+        }
+
+        private static int SolvePart2(string inputPath)
+        {
+            return Solve(inputPath, solver);
         }
     }
 }

@@ -17,7 +17,7 @@ New-Item -ItemType Directory -Path $dayFolderName
 $boilerplateFile = "Solution.cs.boilerplate"
 $solutionFile = Join-Path -Path $dayFolderName -ChildPath "Solution.cs"
 $fileContent = Get-Content -Path $boilerplateFile
-$modifiedContent = $fileContent -replace 'X', $paddedDay
+$modifiedContent = $fileContent -creplace 'X', $paddedDay
 $modifiedContent | Set-Content -Path $solutionFile
 
 $inputFile = Join-Path -Path $dayFolderName -ChildPath "input.txt"
