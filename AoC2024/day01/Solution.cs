@@ -7,7 +7,7 @@ namespace Aoc2024.Day01
         public static void Part1()
         {
             var testResult = SolvePart1("test.txt");
-            Assert.ExpectedEqualsActual(testResult, 11);
+            Assert.ExpectedEqualsActual(11, testResult);
 
             var result = SolvePart1("input.txt");
             Console.WriteLine($"Part 1: {result}");
@@ -46,7 +46,7 @@ namespace Aoc2024.Day01
         public static void Part2()
         {
             var testResult = SolvePart2("test.txt");
-            Assert.ExpectedEqualsActual(testResult, 31);
+            Assert.ExpectedEqualsActual(31, testResult);
 
             var result = SolvePart2("input.txt");
             Console.WriteLine($"Part 2: {result}");
