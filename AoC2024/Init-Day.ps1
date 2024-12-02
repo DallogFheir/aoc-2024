@@ -21,4 +21,7 @@ $modifiedContent = $fileContent -replace 'X', $paddedDay
 $modifiedContent | Set-Content -Path $solutionFile
 
 $inputFile = Join-Path -Path $dayFolderName -ChildPath "input.txt"
-New-Item -ItemType File -Path $inputFile -Force
+New-Item -ItemType File -Path $inputFile
+
+$testFile = Join-Path -Path $dayFolderName -ChildPath "test.txt"
+New-Item -ItemType File -Path $testFile
