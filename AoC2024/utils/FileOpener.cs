@@ -2,9 +2,9 @@ namespace Aoc2024.Utils
 {
     public static class FileOpener
     {
-        public static string[][] ReadIntoSplitLines(string filePath, Func<string, string[]>? splitter = null)
+        public static T[][] ReadIntoSplitLines<T>(string filePath, Func<string, T[]>? splitter = null)
         {
-            splitter ??= (line) => [line];
+            splitter ??= (line) => [(T)(object)line];
 
             string fileContent = File.ReadAllText(filePath);
             string[] lines = fileContent.Split('\n');
