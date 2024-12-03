@@ -26,16 +26,17 @@ namespace Aoc2024.DayX
 
         public static void Part2()
         {
-            var testResult = SolvePart2("test.txt");
-            Assert.ExpectedEqualsActual(expectedValue, testResult);
+            // var testResult = SolvePart2("test.txt");
+            // Assert.ExpectedEqualsActual(expectedValue, testResult);
 
-            var result = SolvePart2("input.txt");
-            Console.WriteLine($"Part 2: {result}");
+            // var result = SolvePart2("input.txt");
+            // Console.WriteLine($"Part 2: {result}");
         }
 
         private static int SolvePart2(string inputPath)
         {
-            return Solve(inputPath, solver);
+            // return Solve(inputPath, solver);
+            return 0;
         }
     }
 }
