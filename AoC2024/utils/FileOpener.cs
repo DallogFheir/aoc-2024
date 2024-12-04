@@ -10,5 +10,11 @@ namespace Aoc2024.Utils
             string[] lines = fileContent.Split('\n');
             return lines.Select(line => splitter(line)).ToArray();
         }
+        public static T[][] ReadIntoGrid<T>(string filePath, Func<char, T>? converter = null)
+        {
+            converter ??= (el) => (T)(object)el;
+
+            return ReadIntoSplitLines(filePath, (line) => line.Select((el) => converter(el)).ToArray());
+        }
     }
 }
