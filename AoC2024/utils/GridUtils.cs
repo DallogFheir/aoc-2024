@@ -2,18 +2,20 @@ global using Point = (int, int);
 
 namespace Aoc2024.Utils
 {
-
     public static class GridUtils
     {
         public static Point[] FindNeighbors<T>(T[][] grid, Point pointCoords, Point[] toAdd)
         {
             var (x, y) = pointCoords;
 
-            return toAdd.Select((toAddPoint) =>
-                            {
-                                var (toAddX, toAddY) = toAddPoint;
-                                return (x + toAddX, y + toAddY);
-                            })
+            return toAdd
+                .Select(
+                    (toAddPoint) =>
+                    {
+                        var (toAddX, toAddY) = toAddPoint;
+                        return (x + toAddX, y + toAddY);
+                    }
+                )
                 .Where((point) => IsValidPoint(grid, point))
                 .ToArray();
         }

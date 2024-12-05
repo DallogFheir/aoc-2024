@@ -20,7 +20,10 @@ namespace Aoc2024.Day01
 
         private static int Solve(string inputPath, Func<int[], int[], int> solver)
         {
-            var lines = FileOpener.ReadIntoSplitLines($"day01/{inputPath}", (line) => line.Split("   "));
+            var lines = FileOpener.ReadIntoSplitLines(
+                $"day01/{inputPath}",
+                (line) => line.Split("   ")
+            );
 
             var leftList = lines.Select((line) => int.Parse(line[0])).ToArray();
             var rightList = lines.Select((line) => int.Parse(line[1])).ToArray();
@@ -33,12 +36,16 @@ namespace Aoc2024.Day01
             var leftListSorted = leftLocationList.OrderBy(locationId => locationId);
             var rightListSorted = rightLocationList.OrderBy(locationId => locationId);
 
-            var result = leftListSorted.Zip(rightListSorted).Sum((zippedLists) =>
-            {
-                var (leftLocationId, rightLocationId) = zippedLists;
+            var result = leftListSorted
+                .Zip(rightListSorted)
+                .Sum(
+                    (zippedLists) =>
+                    {
+                        var (leftLocationId, rightLocationId) = zippedLists;
 
-                return Math.Abs(leftLocationId - rightLocationId);
-            });
+                        return Math.Abs(leftLocationId - rightLocationId);
+                    }
+                );
 
             return result;
         }
@@ -59,13 +66,20 @@ namespace Aoc2024.Day01
 
         private static int FindSimilarityScore(int[] leftLocationList, int[] rightLocationList)
         {
-            var rightListLocationIdCounter = rightLocationList.GroupBy((locationId) => locationId).ToDictionary((group) => group.Key, (group) => group.Count());
+            var rightListLocationIdCounter = rightLocationList
+                .GroupBy((locationId) => locationId)
+                .ToDictionary((group) => group.Key, (group) => group.Count());
 
-            return leftLocationList.Sum((locationId) =>
-            {
-                var locationIdInRightListCount = rightListLocationIdCounter.GetValueOrDefault(locationId, 0);
-                return locationIdInRightListCount * locationId;
-            });
+            return leftLocationList.Sum(
+                (locationId) =>
+                {
+                    var locationIdInRightListCount = rightListLocationIdCounter.GetValueOrDefault(
+                        locationId,
+                        0
+                    );
+                    return locationIdInRightListCount * locationId;
+                }
+            );
         }
     }
 }

@@ -22,7 +22,10 @@ namespace Aoc2024.Day02
 
         private static int Solve(string inputPath, Func<int[][], int> solver)
         {
-            var reports = FileOpener.ReadIntoSplitLines($"day02/{inputPath}", (line) => line.Split(" ").Select((level) => int.Parse(level)).ToArray());
+            var reports = FileOpener.ReadIntoSplitLines(
+                $"day02/{inputPath}",
+                (line) => line.Split(" ").Select((level) => int.Parse(level)).ToArray()
+            );
             return solver(reports);
         }
 
@@ -82,19 +85,27 @@ namespace Aoc2024.Day02
 
         private static int CountSafeReportsWithProblemDampener(int[][] reports)
         {
-            return reports.Count((report) =>
-               {
-                   if (IsReportSafe(report))
-                   {
-                       return true;
-                   }
+            return reports.Count(
+                (report) =>
+                {
+                    if (IsReportSafe(report))
+                    {
+                        return true;
+                    }
 
-                   return Enumerable.Range(0, report.Length).Any((levelToRemoveIdx) =>
-                   {
-                       var reportWithoutOneLevel = report.Where((_, idx) => idx != levelToRemoveIdx);
-                       return IsReportSafe(reportWithoutOneLevel.ToArray());
-                   });
-               });
+                    return Enumerable
+                        .Range(0, report.Length)
+                        .Any(
+                            (levelToRemoveIdx) =>
+                            {
+                                var reportWithoutOneLevel = report.Where(
+                                    (_, idx) => idx != levelToRemoveIdx
+                                );
+                                return IsReportSafe(reportWithoutOneLevel.ToArray());
+                            }
+                        );
+                }
+            );
         }
     }
 }

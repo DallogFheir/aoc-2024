@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Aoc2024.Utils;
 
 namespace Aoc2024.Day04
@@ -29,12 +28,28 @@ namespace Aoc2024.Day04
 
         private static int CountWord(char[][] grid)
         {
-            Point[] toAddHorizontally = Enumerable.Range(0, wordToFind.Length).Select((xCoord) => (xCoord, 0)).ToArray();
-            Point[] toAddVertically = Enumerable.Range(0, wordToFind.Length).Select((yCoord) => (0, yCoord)).ToArray();
-            Point[] toAddDiagonallyLeft = Enumerable.Range(0, wordToFind.Length).Select((coord) => (-coord, coord)).ToArray();
-            Point[] toAddDiagonallyRight = Enumerable.Range(0, wordToFind.Length).Select((coord) => (coord, coord)).ToArray();
-            Point[][] toAddCoordSets = [
-                toAddHorizontally, toAddVertically, toAddDiagonallyLeft, toAddDiagonallyRight
+            Point[] toAddHorizontally = Enumerable
+                .Range(0, wordToFind.Length)
+                .Select((xCoord) => (xCoord, 0))
+                .ToArray();
+            Point[] toAddVertically = Enumerable
+                .Range(0, wordToFind.Length)
+                .Select((yCoord) => (0, yCoord))
+                .ToArray();
+            Point[] toAddDiagonallyLeft = Enumerable
+                .Range(0, wordToFind.Length)
+                .Select((coord) => (-coord, coord))
+                .ToArray();
+            Point[] toAddDiagonallyRight = Enumerable
+                .Range(0, wordToFind.Length)
+                .Select((coord) => (coord, coord))
+                .ToArray();
+            Point[][] toAddCoordSets =
+            [
+                toAddHorizontally,
+                toAddVertically,
+                toAddDiagonallyLeft,
+                toAddDiagonallyRight,
             ];
 
             var count = 0;
@@ -42,20 +57,28 @@ namespace Aoc2024.Day04
             {
                 for (int x = 0; x < grid[y].Length; x++)
                 {
-                    Array.ForEach(toAddCoordSets, (toAddCoordSet) =>
-                    {
-                        var neighbors = GridUtils.FindNeighbors(grid, (x, y), toAddCoordSet);
-
-                        if (neighbors.Length == toAddCoordSet.Length)
+                    Array.ForEach(
+                        toAddCoordSets,
+                        (toAddCoordSet) =>
                         {
-                            var word = string.Join("", neighbors.Select((coords) => GridUtils.GetGridValue(grid, coords)));
+                            var neighbors = GridUtils.FindNeighbors(grid, (x, y), toAddCoordSet);
 
-                            if (StringUtils.CompareOrderInsensitive(word, wordToFind))
+                            if (neighbors.Length == toAddCoordSet.Length)
                             {
-                                count++;
+                                var word = string.Join(
+                                    "",
+                                    neighbors.Select(
+                                        (coords) => GridUtils.GetGridValue(grid, coords)
+                                    )
+                                );
+
+                                if (StringUtils.CompareOrderInsensitive(word, wordToFind))
+                                {
+                                    count++;
+                                }
                             }
                         }
-                    });
+                    );
                 }
             }
 
@@ -91,7 +114,9 @@ namespace Aoc2024.Day04
 
                     if (neighbors.Length == toAddCoords.Length)
                     {
-                        var letters = neighbors.Select((coords) => GridUtils.GetGridValue(grid, coords)).ToArray();
+                        var letters = neighbors
+                            .Select((coords) => GridUtils.GetGridValue(grid, coords))
+                            .ToArray();
 
                         var topLeftCorner = letters[0].ToString();
                         var topRightCorner = letters[1].ToString();
@@ -102,7 +127,10 @@ namespace Aoc2024.Day04
                         var word1 = topLeftCorner + middle + bottomRightCorner;
                         var word2 = topRightCorner + middle + bottomLeftCorner;
 
-                        if (StringUtils.CompareOrderInsensitive(word1, wordToFind) && StringUtils.CompareOrderInsensitive(word2, wordToFind))
+                        if (
+                            StringUtils.CompareOrderInsensitive(word1, wordToFind)
+                            && StringUtils.CompareOrderInsensitive(word2, wordToFind)
+                        )
                         {
                             count++;
                         }

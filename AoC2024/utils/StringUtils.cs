@@ -1,6 +1,5 @@
 namespace Aoc2024.Utils
 {
-
     public static class StringUtils
     {
         public static bool CompareOrderInsensitive(string str1, string str2)
