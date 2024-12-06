@@ -20,13 +20,13 @@ namespace Aoc2024.Day04
             return Solve(inputPath, CountWord);
         }
 
-        private static int Solve(string inputPath, Func<char[][], int> solver)
+        private static int Solve(string inputPath, Func<Grid<char>, int> solver)
         {
             var grid = FileOpener.ReadIntoGrid<char>($"day04/{inputPath}");
             return solver(grid);
         }
 
-        private static int CountWord(char[][] grid)
+        private static int CountWord(Grid<char> grid)
         {
             Point[] toAddHorizontally = Enumerable
                 .Range(0, wordToFind.Length)
@@ -53,23 +53,22 @@ namespace Aoc2024.Day04
             ];
 
             var count = 0;
-            for (int y = 0; y < grid.Length; y++)
-            {
-                for (int x = 0; x < grid[y].Length; x++)
+            grid.ForEachCoord(
+                (coord) =>
                 {
+                    var (x, y) = coord;
+
                     Array.ForEach(
                         toAddCoordSets,
                         (toAddCoordSet) =>
                         {
-                            var neighbors = GridUtils.FindNeighbors(grid, (x, y), toAddCoordSet);
+                            var neighbors = grid.FindNeighbors((x, y), toAddCoordSet);
 
                             if (neighbors.Length == toAddCoordSet.Length)
                             {
                                 var word = string.Join(
                                     "",
-                                    neighbors.Select(
-                                        (coords) => GridUtils.GetGridValue(grid, coords)
-                                    )
+                                    neighbors.Select((coords) => grid.GetGridValue(coords))
                                 );
 
                                 if (StringUtils.CompareOrderInsensitive(word, wordToFind))
@@ -80,7 +79,7 @@ namespace Aoc2024.Day04
                         }
                     );
                 }
-            }
+            );
 
             return count;
         }
@@ -99,23 +98,25 @@ namespace Aoc2024.Day04
             return Solve(inputPath, CountXMas);
         }
 
-        private static int CountXMas(char[][] grid)
+        private static int CountXMas(Grid<char> grid)
         {
             var wordToFind = "MAS";
 
             Point[] toAddCoords = [(0, 0), (2, 0), (0, 2), (2, 2), (1, 1)];
 
             var count = 0;
-            for (int y = 0; y < grid.Length; y++)
-            {
-                for (int x = 0; x < grid[y].Length; x++)
+
+            grid.ForEachCoord(
+                (coord) =>
                 {
-                    var neighbors = GridUtils.FindNeighbors(grid, (x, y), toAddCoords);
+                    var (x, y) = coord;
+
+                    var neighbors = grid.FindNeighbors((x, y), toAddCoords);
 
                     if (neighbors.Length == toAddCoords.Length)
                     {
                         var letters = neighbors
-                            .Select((coords) => GridUtils.GetGridValue(grid, coords))
+                            .Select((coords) => grid.GetGridValue(coords))
                             .ToArray();
 
                         var topLeftCorner = letters[0].ToString();
@@ -136,7 +137,7 @@ namespace Aoc2024.Day04
                         }
                     }
                 }
-            }
+            );
 
             return count;
         }
