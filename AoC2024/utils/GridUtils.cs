@@ -82,5 +82,10 @@ namespace Aoc2024.Utils
 
             return new Grid<T>(newGrid);
         }
+
+        public (int, int) GetSize()
+        {
+            return (grid[0].Length, grid.Length);
+        }
     }
 }
