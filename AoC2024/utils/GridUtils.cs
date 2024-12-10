@@ -6,8 +6,10 @@ namespace Aoc2024.Utils
     {
         private readonly T[][] grid = _grid;
 
-        public Point[] FindNeighbors(Point pointCoords, Point[] toAdd)
+        public Point[] FindNeighbors(Point pointCoords, Point[]? toAdd = null)
         {
+            toAdd ??= [(0, -1), (1, 0), (0, 1), (-1, 0)];
+
             var (x, y) = pointCoords;
 
             return toAdd
@@ -36,6 +38,27 @@ namespace Aoc2024.Utils
         {
             var (x, y) = pointCoords;
             return grid[y][x];
+        }
+
+        public Point[] FindAllInGrid(T value)
+        {
+            List<Point> points = [];
+
+            for (int y = 0; y < grid.Length; y++)
+            {
+                for (int x = 0; x < grid[y].Length; x++)
+                {
+                    if (
+                        (grid[y][x] == null && value == null)
+                        || (grid[y][x]?.Equals(value) ?? false)
+                    )
+                    {
+                        points.Add((x, y));
+                    }
+                }
+            }
+
+            return [.. points];
         }
 
         public Point FindInGrid(T value)
