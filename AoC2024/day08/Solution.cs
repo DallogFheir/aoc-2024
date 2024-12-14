@@ -20,7 +20,7 @@ namespace Aoc2024.Day08
 
         private static int Solve(string inputPath, Func<Grid<char>, AntennaMap> antennaMapFactory)
         {
-            var grid = FileOpener.ReadIntoGrid<char>($"day08/{inputPath}");
+            var grid = FileOpener.ReadIntoGrid($"day08/{inputPath}");
             return antennaMapFactory(grid).FindAntinodes().Count;
         }
 

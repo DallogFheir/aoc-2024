@@ -11,13 +11,16 @@ namespace Aoc2024.Utils
             return lines.Select((line) => splitter(line)).ToArray();
         }
 
-        public static Grid<T> ReadIntoGrid<T>(string filePath, Func<char, T>? converter = null)
+        public static Grid<T> ReadIntoGrid<T>(string filePath, Func<char, T> converter)
         {
-            converter ??= (el) => (T)(object)el;
-
             return new Grid<T>(
                 ReadIntoSplitLines(filePath, (line) => line.Select((el) => converter(el)).ToArray())
             );
+        }
+
+        public static Grid<char> ReadIntoGrid(string filePath)
+        {
+            return ReadIntoGrid(filePath, (el) => el);
         }
 
         public static (T[][], U[][]) ReadIntoTwoPartsThenSplitLines<T, U>(

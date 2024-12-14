@@ -22,7 +22,7 @@ namespace Aoc2024.Day04
 
         private static int Solve(string inputPath, Func<Grid<char>, int> solver)
         {
-            var grid = FileOpener.ReadIntoGrid<char>($"day04/{inputPath}");
+            var grid = FileOpener.ReadIntoGrid($"day04/{inputPath}");
             return solver(grid);
         }
 
