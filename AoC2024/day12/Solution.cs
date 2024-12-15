@@ -70,7 +70,7 @@ namespace Aoc2024.Day12
             return gardenRegions;
         }
 
-        private static IEnumerable<Plot> ProcessGardenRegion(
+        private static List<Plot> ProcessGardenRegion(
             Grid<char> garden,
             HashSet<Point> visited,
             Point plotCoord,
