@@ -1,17 +1,19 @@
+using Aoc2024.Utils;
+
 namespace Aoc2024.Day15;
 
 public class WarehouseMap
 {
-    private static readonly Dictionary<char, MapTile> CHAR_TO_MAP_TILE = new()
-    {
-        { '#', MapTile.Wall },
-        { 'O', MapTile.Box },
-    };
+    private static readonly char WALL_TILE_CHAR = '#';
     private static readonly char ROBOT_TILE_CHAR = '@';
     private static readonly char EMPTY_TILE_CHAR = '.';
+    private static readonly char BOX_TILE_CHAR = 'O';
+    private static readonly char BOX_LEFT_TILE_CHAR = '[';
+    private static readonly char BOX_RIGHT_TILE_CHAR = ']';
 
-    private readonly Dictionary<(int, int), MapTile> map = [];
-    private (int, int) robotLocation;
+    private readonly HashSet<Point> wallCoordinates = [];
+    private readonly Dictionary<Point, MovableObject> coordinatesToBoxes = [];
+    private readonly MovableObject robot;
     private readonly int maxX;
     private readonly int maxY;
 
@@ -20,15 +22,15 @@ public class WarehouseMap
         maxX = mapLines[0].Length - 1;
         maxY = mapLines.Length - 1;
 
-        for (int i = 0; i < mapLines.Length; i++)
+        for (int rowIdx = 0; rowIdx < mapLines.Length; rowIdx++)
         {
-            for (int j = 0; j < mapLines[i].Length; j++)
+            for (int colIdx = 0; colIdx < mapLines[rowIdx].Length; colIdx++)
             {
-                var mapCharacter = mapLines[j][i];
+                var mapCharacter = mapLines[colIdx][rowIdx];
 
                 if (mapCharacter == ROBOT_TILE_CHAR)
                 {
-                    robotLocation = (j, i);
+                    robot = new MovableObject((rowIdx, colIdx), 1);
                     continue;
                 }
 
@@ -37,101 +39,152 @@ public class WarehouseMap
                     continue;
                 }
 
-                var wasTileTypeRetrieved = CHAR_TO_MAP_TILE.TryGetValue(
-                    mapCharacter,
-                    out var tileType
-                );
-                if (!wasTileTypeRetrieved)
+                if (mapCharacter == WALL_TILE_CHAR)
                 {
-                    throw new ArgumentException($"Invalid map character: {mapCharacter}");
+                    wallCoordinates.Add((rowIdx, colIdx));
+                    continue;
                 }
 
-                map[(i, j)] = tileType;
+                if (mapCharacter == BOX_TILE_CHAR)
+                {
+                    var box = new MovableObject((rowIdx, colIdx), 1);
+                    coordinatesToBoxes[(rowIdx, colIdx)] = box;
+                    continue;
+                }
+
+                if (mapCharacter == BOX_LEFT_TILE_CHAR)
+                {
+                    var firstPoint = (rowIdx, colIdx);
+                    var secondPoint = (rowIdx, colIdx + 1);
+
+                    var box = new MovableObject(firstPoint, 2);
+                    coordinatesToBoxes[firstPoint] = box;
+                    coordinatesToBoxes[secondPoint] = box;
+
+                    continue;
+                }
+
+                if (mapCharacter == BOX_RIGHT_TILE_CHAR)
+                {
+                    var firstPoint = (rowIdx, colIdx - 1);
+
+                    if (!coordinatesToBoxes.ContainsKey(firstPoint))
+                    {
+                        throw new ArgumentException("Found ']' without matching '['.");
+                    }
+
+                    continue;
+                }
+
+                throw new ArgumentException($"Invalid map character: {mapCharacter}");
             }
+        }
+        if (robot == null)
+        {
+            throw new ArgumentException("Robot starting position not found on the map.");
         }
     }
 
     public int SumBoxGpsCoordinates()
     {
-        return map.Sum(
-            (coordinateTileTypePair) =>
-            {
-                var coordinate = coordinateTileTypePair.Key;
-                var tileType = coordinateTileTypePair.Value;
-
-                return tileType == MapTile.Box ? CalculateGpsCoordinate(coordinate) : 0;
-            }
-        );
+        var boxes = new HashSet<MovableObject>(coordinatesToBoxes.Values);
+        return boxes.Sum(box => box.GetGpsCoordinate());
     }
 
-    private static int CalculateGpsCoordinate((int, int) coordinate)
-    {
-        return coordinate.Item1 + 100 * coordinate.Item2;
-    }
-
-    public void MoveRobot(Movement[] movements)
+    public void MoveRobot(Direction[] movements)
     {
         foreach (var movement in movements)
         {
-            var newRobotLocation = GetPositionAfterMovement(robotLocation, movement);
-            if (newRobotLocation.HasValue)
+            bool canPerformMovement = CanPerformMovementForObjects(movement, [robot]);
+
+            if (canPerformMovement)
             {
-                robotLocation = newRobotLocation.Value;
-                MoveBox(robotLocation, movement);
+                PerformMovement(movement, [robot], true);
             }
         }
     }
 
-    private (int, int)? GetPositionAfterMovement((int, int) from, Movement direction)
+    private bool CanPerformMovementForObjects(Direction movement, MovableObject[] objects)
     {
-        var to = direction switch
+        if (objects.Length == 0)
         {
-            Movement.Up => (from.Item1, from.Item2 - 1),
-            Movement.Down => (from.Item1, from.Item2 + 1),
-            Movement.Left => (from.Item1 - 1, from.Item2),
-            Movement.Right => (from.Item1 + 1, from.Item2),
-            _ => throw new Exception("This will never happen."),
-        };
+            return true;
+        }
 
-        var isOutOfBounds = to.Item1 < 0 || to.Item1 > maxX || to.Item2 < 0 || to.Item2 > maxY;
-        if (isOutOfBounds)
+        List<MovableObject> newObjects = [];
+
+        foreach (var obj in objects)
         {
-            throw new InvalidOperationException(
-                "Moved out of bounds - this should never happen, as the walls should enclose the whole map."
+            var newPositions = obj.GetPositionsAfterMovement(movement);
+
+            bool isOutOfBounds = newPositions.Any(pos =>
+                pos.Item1 < 0 || pos.Item1 > maxX || pos.Item2 < 0 || pos.Item2 > maxY
+            );
+            if (isOutOfBounds)
+            {
+                throw new InvalidOperationException("Movement out of bounds.");
+            }
+
+            bool canMove = newPositions.All(pos => !wallCoordinates.Contains(pos));
+            if (!canMove)
+            {
+                return false;
+            }
+            newObjects.AddRange(
+                newPositions
+                    .Where(coordinatesToBoxes.ContainsKey)
+                    .Select(pos => coordinatesToBoxes[pos])
             );
         }
 
-        var isEmptyTile = !map.TryGetValue(to, out var tileAtNewLocation);
-        if (isEmptyTile)
-        {
-            return to;
-        }
-
-        if (tileAtNewLocation == MapTile.Wall)
-        {
-            return null;
-        }
-
-        var furtherMovement = GetPositionAfterMovement(to, direction);
-        return furtherMovement.HasValue ? to : null;
+        return CanPerformMovementForObjects(movement, [.. newObjects.Distinct()]);
     }
 
-    private void MoveBox((int, int) stoneLocation, Movement direction)
+    private void PerformMovement(Direction movement, MovableObject[] objects, bool doUpdateRobot)
     {
-        var isEmptyTile = !map.TryGetValue(stoneLocation, out var tileAtStoneLocation);
-        if (isEmptyTile || tileAtStoneLocation != MapTile.Box)
+        if (objects.Length == 0)
         {
             return;
         }
 
-        var newStoneLocation = GetPositionAfterMovement(stoneLocation, direction);
-        if (!newStoneLocation.HasValue)
+        foreach (var obj in objects)
         {
-            throw new ArgumentException("Stone cannot be moved in the given direction.");
-        }
+            var oldPositions = obj.LeftmostPoint;
+            var newPositions = obj.GetPositionsAfterMovement(movement);
 
-        MoveBox(newStoneLocation.Value, direction);
-        map.Remove(stoneLocation);
-        map[newStoneLocation.Value] = MapTile.Box;
+            obj.Move(movement);
+
+            if (!doUpdateRobot)
+            {
+                Enumerable
+                    .Range(0, obj.Width)
+                    .ToList()
+                    .ForEach(offset =>
+                    {
+                        var oldPos = (oldPositions.Item1 + offset, oldPositions.Item2);
+                        coordinatesToBoxes.Remove(oldPos);
+                    });
+            }
+
+            PerformMovement(
+                movement,
+                [
+                    .. newPositions
+                        .Where(coordinatesToBoxes.ContainsKey)
+                        .Select(pos => coordinatesToBoxes[pos]),
+                ],
+                false
+            );
+
+            if (!doUpdateRobot)
+            {
+                newPositions
+                    .ToList()
+                    .ForEach(pos =>
+                    {
+                        coordinatesToBoxes[pos] = obj;
+                    });
+            }
+        }
     }
 }

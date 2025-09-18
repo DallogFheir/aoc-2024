@@ -17,54 +17,49 @@ namespace Aoc2024.Day15
 
         private static int SolvePart1(string inputPath)
         {
-            return Solve(
-                inputPath,
-                (map, movements) =>
-                {
-                    map.MoveRobot(movements);
-                    return map.SumBoxGpsCoordinates();
-                }
-            );
+            return Solve(inputPath);
         }
 
-        private static int Solve(string inputPath, Func<WarehouseMap, Movement[], int> solver)
+        private static int Solve(string inputPath, Func<string, string>? mapMapper = null)
         {
+            mapMapper ??= (line) => line;
+
             var (mapStr, movementsStr) = FileOpener.ReadIntoTwoParts($"day15/{inputPath}");
 
-            var map = new WarehouseMap(mapStr.Split("\n"));
+            var map = new WarehouseMap([.. mapStr.Split("\n").Select(line => mapMapper(line))]);
             var movements = movementsStr
                 .Replace("\n", "")
                 .Select(ParseCharacterToMovement)
                 .ToArray();
 
-            return solver(map, movements);
+            map.MoveRobot(movements);
+            return map.SumBoxGpsCoordinates();
         }
 
-        private static Movement ParseCharacterToMovement(char chr)
+        private static Direction ParseCharacterToMovement(char chr)
         {
             return chr switch
             {
-                '^' => Movement.Up,
-                'v' => Movement.Down,
-                '<' => Movement.Left,
-                '>' => Movement.Right,
+                '^' => Direction.Up,
+                'v' => Direction.Down,
+                '<' => Direction.Left,
+                '>' => Direction.Right,
                 _ => throw new ArgumentException($"Invalid movement character: {chr}"),
             };
         }
 
         public static void Part2()
         {
-            // var testResult = SolvePart2("test2.txt");
-            // Assert.ExpectedEqualsActual(9021, testResult);
+            var testResult = SolvePart2("test2.txt");
+            Assert.ExpectedEqualsActual(9021, testResult);
 
-            // var result = SolvePart2("input.txt");
-            // Console.WriteLine($"Part 2: {result}");
+            var result = SolvePart2("input.txt");
+            Console.WriteLine($"Part 2: {result}");
         }
 
         private static int SolvePart2(string inputPath)
         {
-            // return Solve(inputPath, solver);
-            return 0;
+            return Solve(inputPath);
         }
     }
 }
