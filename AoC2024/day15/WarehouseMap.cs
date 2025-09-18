@@ -26,11 +26,11 @@ public class WarehouseMap
         {
             for (int colIdx = 0; colIdx < mapLines[rowIdx].Length; colIdx++)
             {
-                var mapCharacter = mapLines[colIdx][rowIdx];
+                var mapCharacter = mapLines[rowIdx][colIdx];
 
                 if (mapCharacter == ROBOT_TILE_CHAR)
                 {
-                    robot = new MovableObject((rowIdx, colIdx), 1);
+                    robot = new MovableObject((colIdx, rowIdx), 1);
                     continue;
                 }
 
@@ -41,21 +41,22 @@ public class WarehouseMap
 
                 if (mapCharacter == WALL_TILE_CHAR)
                 {
-                    wallCoordinates.Add((rowIdx, colIdx));
+                    wallCoordinates.Add((colIdx, rowIdx));
                     continue;
                 }
 
                 if (mapCharacter == BOX_TILE_CHAR)
                 {
-                    var box = new MovableObject((rowIdx, colIdx), 1);
-                    coordinatesToBoxes[(rowIdx, colIdx)] = box;
+                    var point = (colIdx, rowIdx);
+                    var box = new MovableObject(point, 1);
+                    coordinatesToBoxes[point] = box;
                     continue;
                 }
 
                 if (mapCharacter == BOX_LEFT_TILE_CHAR)
                 {
-                    var firstPoint = (rowIdx, colIdx);
-                    var secondPoint = (rowIdx, colIdx + 1);
+                    var firstPoint = (colIdx, rowIdx);
+                    var secondPoint = (colIdx + 1, rowIdx);
 
                     var box = new MovableObject(firstPoint, 2);
                     coordinatesToBoxes[firstPoint] = box;
@@ -66,7 +67,7 @@ public class WarehouseMap
 
                 if (mapCharacter == BOX_RIGHT_TILE_CHAR)
                 {
-                    var firstPoint = (rowIdx, colIdx - 1);
+                    var firstPoint = (colIdx - 1, rowIdx);
 
                     if (!coordinatesToBoxes.ContainsKey(firstPoint))
                     {
@@ -115,7 +116,9 @@ public class WarehouseMap
 
         foreach (var obj in objects)
         {
-            var newPositions = obj.GetPositionsAfterMovement(movement);
+            var oldPositions = obj.GetPositions();
+            var newPositions = obj.GetPositionsAfterMovement(movement)
+                .Where((pos) => !oldPositions.Contains(pos));
 
             bool isOutOfBounds = newPositions.Any(pos =>
                 pos.Item1 < 0 || pos.Item1 > maxX || pos.Item2 < 0 || pos.Item2 > maxY
@@ -125,8 +128,8 @@ public class WarehouseMap
                 throw new InvalidOperationException("Movement out of bounds.");
             }
 
-            bool canMove = newPositions.All(pos => !wallCoordinates.Contains(pos));
-            if (!canMove)
+            bool isBlockedByWall = newPositions.Any(wallCoordinates.Contains);
+            if (isBlockedByWall)
             {
                 return false;
             }
@@ -149,20 +152,18 @@ public class WarehouseMap
 
         foreach (var obj in objects)
         {
-            var oldPositions = obj.LeftmostPoint;
+            var oldPositions = obj.GetPositions();
             var newPositions = obj.GetPositionsAfterMovement(movement);
 
             obj.Move(movement);
 
             if (!doUpdateRobot)
             {
-                Enumerable
-                    .Range(0, obj.Width)
+                oldPositions
                     .ToList()
-                    .ForEach(offset =>
+                    .ForEach(pos =>
                     {
-                        var oldPos = (oldPositions.Item1 + offset, oldPositions.Item2);
-                        coordinatesToBoxes.Remove(oldPos);
+                        coordinatesToBoxes.Remove(pos);
                     });
             }
 
@@ -170,8 +171,11 @@ public class WarehouseMap
                 movement,
                 [
                     .. newPositions
-                        .Where(coordinatesToBoxes.ContainsKey)
-                        .Select(pos => coordinatesToBoxes[pos]),
+                        .Where(pos =>
+                            !oldPositions.Contains(pos) && coordinatesToBoxes.ContainsKey(pos)
+                        )
+                        .Select(pos => coordinatesToBoxes[pos])
+                        .Distinct(),
                 ],
                 false
             );

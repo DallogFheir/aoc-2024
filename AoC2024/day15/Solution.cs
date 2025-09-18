@@ -4,6 +4,14 @@ namespace Aoc2024.Day15
 {
     public class Solution
     {
+        private static readonly Dictionary<char, string> CHARACTER_TO_DOUBLE_CHARACTER = new()
+        {
+            { '#', "##" },
+            { '.', ".." },
+            { 'O', "[]" },
+            { '@', "@." },
+        };
+
         public static void Part1()
         {
             var test1Result = SolvePart1("test1.txt");
@@ -50,6 +58,8 @@ namespace Aoc2024.Day15
 
         public static void Part2()
         {
+            // SolvePart2("test3.txt");
+
             var testResult = SolvePart2("test2.txt");
             Assert.ExpectedEqualsActual(9021, testResult);
 
@@ -59,7 +69,10 @@ namespace Aoc2024.Day15
 
         private static int SolvePart2(string inputPath)
         {
-            return Solve(inputPath);
+            return Solve(
+                inputPath,
+                (line) => string.Join("", line.Select(chr => CHARACTER_TO_DOUBLE_CHARACTER[chr]))
+            );
         }
     }
 }

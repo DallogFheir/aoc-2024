@@ -29,6 +29,16 @@ public class MovableObject(Point leftmostPoint, int width)
         return x + 100 * y;
     }
 
+    public Point[] GetPositions()
+    {
+        return
+        [
+            .. Enumerable
+                .Range(0, Width)
+                .Select(offset => (LeftmostPoint.Item1 + offset, LeftmostPoint.Item2)),
+        ];
+    }
+
     public Point[] GetPositionsAfterMovement(Direction direction)
     {
         var leftmostPointAfterMovement = DirectionUtils.GetPointAfterMovement(
