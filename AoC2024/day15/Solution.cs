@@ -1,0 +1,70 @@
+using Aoc2024.Utils;
+
+namespace Aoc2024.Day15
+{
+    public class Solution
+    {
+        public static void Part1()
+        {
+            var test1Result = SolvePart1("test1.txt");
+            Assert.ExpectedEqualsActual(2028, test1Result);
+            var test2Result = SolvePart1("test2.txt");
+            Assert.ExpectedEqualsActual(10092, test2Result);
+
+            var result = SolvePart1("input.txt");
+            Console.WriteLine($"Part 1: {result}");
+        }
+
+        private static int SolvePart1(string inputPath)
+        {
+            return Solve(
+                inputPath,
+                (map, movements) =>
+                {
+                    map.MoveRobot(movements);
+                    return map.SumBoxGpsCoordinates();
+                }
+            );
+        }
+
+        private static int Solve(string inputPath, Func<WarehouseMap, Movement[], int> solver)
+        {
+            var (mapStr, movementsStr) = FileOpener.ReadIntoTwoParts($"day15/{inputPath}");
+
+            var map = new WarehouseMap(mapStr.Split("\n"));
+            var movements = movementsStr
+                .Replace("\n", "")
+                .Select(ParseCharacterToMovement)
+                .ToArray();
+
+            return solver(map, movements);
+        }
+
+        private static Movement ParseCharacterToMovement(char chr)
+        {
+            return chr switch
+            {
+                '^' => Movement.Up,
+                'v' => Movement.Down,
+                '<' => Movement.Left,
+                '>' => Movement.Right,
+                _ => throw new ArgumentException($"Invalid movement character: {chr}"),
+            };
+        }
+
+        public static void Part2()
+        {
+            // var testResult = SolvePart2("test2.txt");
+            // Assert.ExpectedEqualsActual(9021, testResult);
+
+            // var result = SolvePart2("input.txt");
+            // Console.WriteLine($"Part 2: {result}");
+        }
+
+        private static int SolvePart2(string inputPath)
+        {
+            // return Solve(inputPath, solver);
+            return 0;
+        }
+    }
+}
