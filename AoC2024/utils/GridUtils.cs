@@ -12,16 +12,18 @@ namespace Aoc2024.Utils
 
             var (x, y) = pointCoords;
 
-            return toAdd
-                .Select(
-                    (toAddPoint) =>
-                    {
-                        var (toAddX, toAddY) = toAddPoint;
-                        return (x + toAddX, y + toAddY);
-                    }
-                )
-                .Where(IsValidPoint)
-                .ToArray();
+            return
+            [
+                .. toAdd
+                    .Select(
+                        (toAddPoint) =>
+                        {
+                            var (toAddX, toAddY) = toAddPoint;
+                            return (x + toAddX, y + toAddY);
+                        }
+                    )
+                    .Where(IsValidPoint),
+            ];
         }
 
         public bool IsValidPoint(Point pointCoords)

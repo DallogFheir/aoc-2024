@@ -23,6 +23,13 @@ namespace Aoc2024.Utils
             return ReadIntoGrid(filePath, (el) => el);
         }
 
+        public static (string, string) ReadIntoTwoParts(string filePath)
+        {
+            string fileContent = File.ReadAllText(filePath);
+            string[] parts = fileContent.Split("\n\n");
+            return (parts[0], parts[1]);
+        }
+
         public static (T[][], U[][]) ReadIntoTwoPartsThenSplitLines<T, U>(
             string filePath,
             Func<string, T[]>? firstPartSplitter = null,
@@ -32,17 +39,16 @@ namespace Aoc2024.Utils
             firstPartSplitter ??= (line) => [(T)(object)line];
             secondPartSplitter ??= (line) => [(U)(object)line];
 
-            string fileContent = File.ReadAllText(filePath);
-            string[] parts = fileContent.Split("\n\n");
+            (string firstPart, string secondPart) = ReadIntoTwoParts(filePath);
 
-            T[][] firstPartLines = parts[0]
-                .Split('\n')
-                .Select((line) => firstPartSplitter(line))
-                .ToArray();
-            U[][] secondPartLines = parts[1]
-                .Split('\n')
-                .Select((line) => secondPartSplitter(line))
-                .ToArray();
+            T[][] firstPartLines =
+            [
+                .. firstPart.Split('\n').Select((line) => firstPartSplitter(line)),
+            ];
+            U[][] secondPartLines =
+            [
+                .. secondPart.Split('\n').Select((line) => secondPartSplitter(line)),
+            ];
 
             return (firstPartLines, secondPartLines);
         }
