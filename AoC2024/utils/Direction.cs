@@ -10,6 +10,15 @@ namespace Aoc2024.Utils
 
     public static class DirectionUtils
     {
+        public static Direction TurnLeft(Direction direction)
+        {
+            int directionCount = Enum.GetValues(typeof(Direction)).Length;
+
+            int directionInt = (int)direction;
+            int newDirectionInt = directionInt == 0 ? directionCount - 1 : directionInt - 1;
+            return (Direction)newDirectionInt;
+        }
+
         public static Direction TurnRight(Direction direction)
         {
             int directionCount = Enum.GetValues(typeof(Direction)).Length;

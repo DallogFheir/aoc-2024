@@ -8,7 +8,7 @@ namespace Aoc2024.Utils
 
             string fileContent = File.ReadAllText(filePath);
             string[] lines = fileContent.Split('\n');
-            return lines.Select((line) => splitter(line)).ToArray();
+            return [.. lines.Select((line) => splitter(line))];
         }
 
         public static Grid<T> ReadIntoGrid<T>(string filePath, Func<char, T> converter)
