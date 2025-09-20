@@ -3,6 +3,7 @@ using Aoc2024.Utils;
 namespace Aoc2024.Day16;
 
 using State = (Point, Direction);
+using VisitedEntry = (int, List<(Point, Direction)>);
 
 public class Dijkstra(HashSet<Point> mazePoints, Point start, Point target)
 {
@@ -12,35 +13,95 @@ public class Dijkstra(HashSet<Point> mazePoints, Point start, Point target)
 
     public int FindShortestPathCost()
     {
-        var visited = new HashSet<State>();
-        var queue = new PriorityQueue<State, int>();
-        queue.Enqueue((start, startingDirection), 0);
+        return RunDijkstra((visited) => visited.First(kv => kv.Key.Item1 == target).Value.Item1);
+    }
+
+    public int CountPointsOnShortestPaths()
+    {
+        return RunDijkstra(
+            (visited) =>
+            {
+                var uniquePoints = new HashSet<Point>();
+
+                var targetEntries = visited.Where(kv => kv.Key.Item1 == target);
+                var minCost = targetEntries.Min(kv => kv.Value.Item1);
+                var queue = targetEntries
+                    .Where(kv => kv.Value.Item1 == minCost)
+                    .Select(kv => kv.Key)
+                    .ToList();
+
+                while (queue.Count > 0)
+                {
+                    var entry = queue.First();
+                    queue.RemoveAt(0);
+
+                    var (position, _) = entry;
+                    uniquePoints.Add(position);
+
+                    queue.AddRange(visited[entry].Item2);
+                }
+
+                return uniquePoints.Count;
+            }
+        );
+    }
+
+    private T RunDijkstra<T>(Func<Dictionary<State, VisitedEntry>, T> resultExtractor)
+    {
+        var visited = new Dictionary<State, VisitedEntry>();
+        var queue = new PriorityQueue<(State, State?), int>();
+        queue.Enqueue(((start, startingDirection), null), 0);
 
         while (queue.Count > 0)
         {
-            queue.TryDequeue(out var currentState, out var currentCost);
+            queue.TryDequeue(out var currentQueueEntry, out var currentCost);
+            var (currentState, previousState) = currentQueueEntry;
             var (currentPosition, currentDirection) = currentState;
 
-            if (currentPosition == target)
+            var isAlreadyVisited = visited.TryGetValue(currentState, out var existingEntry);
+            if (isAlreadyVisited)
             {
-                return currentCost;
-            }
+                var (existingCost, existingPredecessors) = existingEntry;
+                if (currentCost < existingCost)
+                {
+                    throw new InvalidOperationException("This should never happen.");
+                }
 
-            visited.Add(currentState);
+                if (currentCost == existingCost && previousState is not null)
+                {
+                    existingPredecessors.Add(previousState.Value);
+                }
+                else if (currentCost > existingCost)
+                {
+                    if (currentPosition == target)
+                    {
+                        break;
+                    }
+                }
+
+                continue;
+            }
+            else
+            {
+                visited.Add(
+                    currentState,
+                    (currentCost, previousState is null ? [] : [previousState.Value])
+                );
+            }
 
             var possibleNextPosition = DirectionUtils.GetPointAfterMovement(
                 currentPosition,
                 currentDirection
             );
-            (State, int)[] possibleNextQueueEntries =
+            ((State, State?), int)[] possibleNextQueueEntries =
             [
-                ((possibleNextPosition, currentDirection), currentCost + moveCost),
+                (((possibleNextPosition, currentDirection), currentState), currentCost + moveCost),
                 (
-                    (currentPosition, DirectionUtils.TurnLeft(currentDirection)),
+                    ((currentPosition, DirectionUtils.TurnLeft(currentDirection)), currentState),
                     currentCost + rotationCost
                 ),
                 (
-                    (currentPosition, DirectionUtils.TurnRight(currentDirection)),
+                    ((currentPosition, DirectionUtils.TurnRight(currentDirection)), currentState),
                     currentCost + rotationCost
                 ),
             ];
@@ -48,10 +109,9 @@ public class Dijkstra(HashSet<Point> mazePoints, Point start, Point target)
             var nextQueueEntries = possibleNextQueueEntries.Where(
                 (queueEntry) =>
                 {
-                    var (state, _) = queueEntry;
-                    var (position, _) = state;
+                    var (((position, _), _), _) = queueEntry;
 
-                    return mazePoints.Contains(position) && !visited.Contains(state);
+                    return mazePoints.Contains(position);
                 }
             );
             foreach (var (state, cost) in nextQueueEntries)
@@ -60,6 +120,6 @@ public class Dijkstra(HashSet<Point> mazePoints, Point start, Point target)
             }
         }
 
-        throw new InvalidOperationException("No path found");
+        return resultExtractor(visited);
     }
 }

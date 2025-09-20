@@ -67,17 +67,18 @@ namespace Aoc2024.Day16
 
         public static void Part2()
         {
-            // var testResult = SolvePart2("test.txt");
-            // Assert.ExpectedEqualsActual(expectedValue, testResult);
+            var test1Result = SolvePart2("test1.txt");
+            Assert.ExpectedEqualsActual(45, test1Result);
+            var test2Result = SolvePart2("test2.txt");
+            Assert.ExpectedEqualsActual(64, test2Result);
 
-            // var result = SolvePart2("input.txt");
-            // Console.WriteLine($"Part 2: {result}");
+            var result = SolvePart2("input.txt");
+            Console.WriteLine($"Part 2: {result}");
         }
 
         private static int SolvePart2(string inputPath)
         {
-            // return Solve(inputPath, solver);
-            return 0;
+            return Solve(inputPath, (dijkstra) => dijkstra.CountPointsOnShortestPaths());
         }
     }
 }
