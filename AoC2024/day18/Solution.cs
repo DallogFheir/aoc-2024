@@ -7,13 +7,13 @@ namespace Aoc2024.Day18
         public static void Part1()
         {
             var testResult = SolvePart1("test.txt", 6, 12);
-            Assert.ExpectedEqualsActual(22, testResult);
+            Assert.ExpectedEqualsActual("22", testResult);
 
             var result = SolvePart1("input.txt", 70, 1024);
             Console.WriteLine($"Part 1: {result}");
         }
 
-        private static int SolvePart1(string inputPath, int gridMaxCoordinate, int byteCount)
+        private static string SolvePart1(string inputPath, int gridMaxCoordinate, int byteCount)
         {
             return Solve(
                 inputPath,
@@ -28,12 +28,12 @@ namespace Aoc2024.Day18
                         corruptedPoints
                     );
 
-                    return memorySpace.FindShortestPathLength();
+                    return memorySpace.FindShortestPathLength().ToString();
                 }
             );
         }
 
-        private static int Solve(string inputPath, Func<Point[], int> solver)
+        private static string Solve(string inputPath, Func<Point[], string> solver)
         {
             var lines = FileOpener.ReadIntoSplitLines(
                 $"day18/{inputPath}",
@@ -50,17 +50,48 @@ namespace Aoc2024.Day18
 
         public static void Part2()
         {
-            // var testResult = SolvePart2("test.txt");
-            // Assert.ExpectedEqualsActual(expectedValue, testResult);
+            var testResult = SolvePart2("test.txt", 6, 12 + 1);
+            Assert.ExpectedEqualsActual("6,1", testResult);
 
-            // var result = SolvePart2("input.txt");
-            // Console.WriteLine($"Part 2: {result}");
+            var result = SolvePart2("input.txt", 70, 1024 + 1);
+            Console.WriteLine($"Part 2: {result}");
         }
 
-        private static int SolvePart2(string inputPath)
+        private static string SolvePart2(
+            string inputPath,
+            int gridMaxCoordinate,
+            int startByteCount
+        )
         {
-            // return Solve(inputPath, solver);
-            return 0;
+            return Solve(
+                inputPath,
+                (lines) =>
+                {
+                    for (int i = startByteCount; i <= lines.Length; i++)
+                    {
+                        var corruptedPoints = new HashSet<Point>(lines.Take(i));
+
+                        var memorySpace = new MemorySpace(
+                            gridMaxCoordinate,
+                            gridMaxCoordinate,
+                            (gridMaxCoordinate, gridMaxCoordinate),
+                            corruptedPoints
+                        );
+
+                        try
+                        {
+                            memorySpace.FindShortestPathLength();
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            var (x, y) = lines[i - 1];
+                            return $"{x},{y}";
+                        }
+                    }
+
+                    throw new InvalidOperationException("No solution found.");
+                }
+            );
         }
     }
 }
